@@ -11,6 +11,7 @@ const patterns = [
   'dist/**',
   '**/dist-ssr',
   '**/web-build',
+  '**/android',
   
   // Mobile specific
   '**/.expo',
@@ -32,6 +33,7 @@ const patterns = [
   '**/yarn-error.*',
   
   // System files
+  '._*',
   '**/.DS_Store',
   
   // IDE files
