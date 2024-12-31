@@ -1,10 +1,21 @@
+import { fetchApi } from '@packages/core'
+import { Button } from '@packages/ui'
 import { useState } from 'react'
+import './App.css'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [apiResult, setApiResult] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const testApi = async () => {
+    setIsLoading(true)
+    const response = await fetchApi<{ message: string }>('/')
+    setApiResult(response.data?.message || response.error || 'No response')
+    setIsLoading(false)
+  }
 
   return (
     <>
@@ -18,9 +29,15 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <Button variant="secondary" onPress={() => setCount((count) => count + 1)}>
           count is {count}
-        </button>
+        </Button>
+        <Button onPress={testApi}>
+          Test API
+        </Button>
+        <p>
+          {isLoading ? 'Loading...' : apiResult || ' '}
+        </p>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
