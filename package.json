@@ -1,0 +1,32 @@
+{
+  "name": "monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "node scripts/clean.js",
+
+    "web:dev": "yarn workspace web dev",
+    "server:dev": "yarn workspace server dev",
+    "mobile:dev": "yarn workspace mobile dev",
+
+    "dev": "concurrently --kill-others -n \"server,web\" -c \"blue,green\" \"yarn server:dev\" \"yarn web:dev\" \"node scripts/cross-os-terminal.js \\\"yarn mobile:dev\\\"\"",
+    "dev:web": "concurrently --kill-others -n \"server,web\" -c \"blue,green\" \"yarn server:dev\" \"yarn web:dev\"",
+    "dev:mobile": "concurrently --kill-others -n \"server\" -c \"blue\" \"yarn server:dev\" \"node scripts/cross-os-terminal.js \\\"yarn mobile:dev\\\"\"",
+
+    "build:web": "yarn workspace web build",
+    "build:server": "yarn workspace server build",
+    "build:android": "node scripts/check-eas.js && yarn workspace mobile build:android --local --output ../../dist/mobile",
+    "build:android:dev": "node scripts/check-eas.js && yarn workspace mobile build:android --profile development",
+    "build:android:prod": "node scripts/check-eas.js && yarn workspace mobile build:android --profile production",
+    "build:ios": "node scripts/check-eas.js && yarn workspace mobile build:ios --local --output ../../dist/mobile",
+    "build:ios:dev": "node scripts/check-eas.js && yarn workspace mobile build:ios --profile development",
+    "build:ios:prod": "node scripts/check-eas.js && yarn workspace mobile build:ios --profile production"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.1"
+  }
+}
