@@ -82,20 +82,33 @@ function configureSDK(sdkPath) {
     }
 }
 
-try {
-    const sdkPath = findAndroidSdk();
-    process.env.ANDROID_HOME = sdkPath;
-    
-    // Set up local.properties
-    setupLocalProperties(sdkPath);
-    
-    // Configure SDK packages
-    configureSDK(sdkPath);
+function setupAndroidSdk() {
+    try {
+        const sdkPath = findAndroidSdk();
+        process.env.ANDROID_HOME = sdkPath;
+        
+        setupLocalProperties(sdkPath);
+        configureSDK(sdkPath);
 
-    console.log('✅ Android SDK found at:', sdkPath);
-    console.log('✅ Created local.properties file');
-    console.log('✅ SDK configuration complete');
-} catch (error) {
-    console.error('Error:', error.message);
-    process.exit(1);
-} 
+        console.log('✅ Android SDK found at:', sdkPath);
+        console.log('✅ Created local.properties file');
+        console.log('✅ SDK configuration complete');
+        return true;
+    } catch (error) {
+        console.error('Error:', error.message);
+        return false;
+    }
+}
+
+if (require.main === module) {
+    if (!setupAndroidSdk()) {
+        process.exit(1);
+    }
+}
+
+module.exports = {
+    findAndroidSdk,
+    setupAndroidSdk,
+    setupLocalProperties,
+    configureSDK
+}; 

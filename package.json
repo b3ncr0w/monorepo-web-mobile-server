@@ -15,7 +15,9 @@
 
     "dev": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\" \"yarn web:dev\"",
     "dev:web": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn web:dev\"",
-    "dev:mobile": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\"",
+    "dev:ios": "node scripts/check-ios-simulator.js && node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn workspace mobile ios\"",
+    "dev:android": "node scripts/check-android-emulator.js && node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn workspace mobile android\"",
+    "dev:server": "node scripts/cross-os-terminal.js \"yarn server:dev\"",
 
     "build:web": "yarn workspace web build",
     "build:server": "yarn workspace server build",
