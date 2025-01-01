@@ -8,25 +8,26 @@
   ],
   "scripts": {
     "clean": "node scripts/clean.js",
-
     "web:dev": "yarn workspace web dev --host",
     "server:dev": "yarn workspace server dev",
     "mobile:dev": "yarn workspace mobile dev",
-
-    "dev": "concurrently --kill-others --raw \"node scripts/cross-os-terminal.js \\\"yarn server:dev\\\"\" \"node scripts/cross-os-terminal.js \\\"yarn mobile:dev\\\"\" \"yarn web:dev\"",
-    "dev:web": "concurrently --kill-others --raw \"node scripts/cross-os-terminal.js \\\"yarn server:dev\\\"\" \"yarn web:dev\"",
-    "dev:mobile": "concurrently --kill-others --raw \"node scripts/cross-os-terminal.js \\\"yarn server:dev\\\"\" \"yarn mobile:dev\"",
-
+    "dev": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\" \"yarn web:dev\"",
+    "dev:web": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn web:dev\"",
+    "dev:mobile": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\"",
     "build:web": "yarn workspace web build",
     "build:server": "yarn workspace server build",
-    "build:android": "node scripts/check-eas.js && yarn workspace mobile build:android --local --output ../../dist/mobile",
+    "build:android": "yarn workspace mobile build:android && node scripts/move-android-build.js",
     "build:android:dev": "node scripts/check-eas.js && yarn workspace mobile build:android --profile development",
     "build:android:prod": "node scripts/check-eas.js && yarn workspace mobile build:android --profile production",
     "build:ios": "node scripts/check-eas.js && yarn workspace mobile build:ios --local --output ../../dist/mobile",
     "build:ios:dev": "node scripts/check-eas.js && yarn workspace mobile build:ios --profile development",
-    "build:ios:prod": "node scripts/check-eas.js && yarn workspace mobile build:ios --profile production"
+    "build:ios:prod": "node scripts/check-eas.js && yarn workspace mobile build:ios --profile production",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
-  "devDependencies": {
-    "concurrently": "^9.1.1"
+  "dependencies": {
+    "expo": "~52.0.23",
+    "react": "18.3.1",
+    "react-native": "0.76.5"
   }
 }

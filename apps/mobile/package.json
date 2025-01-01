@@ -4,11 +4,13 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "expo start",
-    "build:android": "eas build --platform android",
+    "prebuild": "npx expo prebuild",
+    "setup-android": "node scripts/setup-android-sdk.js",
+    "build:android": "npx expo prebuild && yarn setup-android && cd android && ./gradlew assembleRelease",
     "build:ios": "eas build --platform ios",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint"

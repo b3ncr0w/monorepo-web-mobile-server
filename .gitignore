@@ -1,5 +1,7 @@
 node_modules
 dist
+android
+ios
 
 ._*
 .DS_Store
