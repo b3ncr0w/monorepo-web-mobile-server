@@ -16,7 +16,7 @@
     "dev:mobile": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\"",
     "build:web": "yarn workspace web build",
     "build:server": "yarn workspace server build",
-    "build:android": "yarn workspace mobile build:android && node scripts/move-android-build.js",
+    "build:android": "node scripts/check-android-sdk.js && ANDROID_HOME=/opt/homebrew/share/android-commandlinetools yarn workspace mobile prebuild && cd apps/mobile/android && ANDROID_HOME=/opt/homebrew/share/android-commandlinetools ./gradlew assembleRelease && cd ../../../ && node scripts/move-android-build.js",
     "build:android:dev": "node scripts/check-eas.js && yarn workspace mobile build:android --profile development",
     "build:android:prod": "node scripts/check-eas.js && yarn workspace mobile build:android --profile production",
     "build:ios": "node scripts/check-eas.js && yarn workspace mobile build:ios --local --output ../../dist/mobile",

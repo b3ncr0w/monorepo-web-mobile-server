@@ -17,6 +17,8 @@ const patterns = [
   '**/.expo',
   '**/expo-env.d.ts',
   '**/app-example',
+  '**/ios',
+  '**/android',
   
   // TypeScript build info
   '**/*.tsbuildinfo',

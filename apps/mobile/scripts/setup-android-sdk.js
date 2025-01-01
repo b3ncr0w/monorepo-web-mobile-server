@@ -4,14 +4,14 @@ const { execSync } = require('child_process');
 const os = require('os');
 
 function findAndroidSdk() {
-    // Get home directory in a cross-platform way
     const homeDir = os.homedir();
     
     // Common Android SDK locations
     const possiblePaths = [
-        path.join(homeDir, 'Library/Android/sdk'),     // macOS
+        '/opt/homebrew/share/android-commandlinetools',  // Homebrew Android SDK location
+        path.join(homeDir, 'Library/Android/sdk'),      // macOS default
         path.join(homeDir, 'AppData/Local/Android/Sdk'), // Windows
-        path.join(homeDir, 'Android/Sdk'),             // Linux
+        path.join(homeDir, 'Android/Sdk'),              // Linux
     ];
 
     // Check ANDROID_HOME env variable first
@@ -26,36 +26,40 @@ function findAndroidSdk() {
         }
     }
 
-    // Try to get from command line tools if available
-    try {
-        const cmdResult = execSync('which android').toString().trim();
-        if (cmdResult) {
-            const sdkPath = path.resolve(cmdResult, '../../');
-            if (fs.existsSync(sdkPath)) {
-                return sdkPath;
-            }
-        }
-    } catch (e) {
-        // Command line tools not found
-    }
-
-    return null;
+    throw new Error('Android SDK not found! Please run yarn build:android first to install it.');
 }
 
-function setupAndroidSdk() {
+function setupLocalProperties(sdkPath) {
+    // Wait for the android directory to be created by prebuild
+    const maxAttempts = 10;
+    let attempts = 0;
+    const androidDir = path.join(__dirname, '../android');
+    
+    while (!fs.existsSync(androidDir) && attempts < maxAttempts) {
+        attempts++;
+        // Wait for 1 second
+        execSync('sleep 1');
+    }
+
+    if (!fs.existsSync(androidDir)) {
+        throw new Error('Android directory was not created by prebuild');
+    }
+
+    const localPropertiesPath = path.join(androidDir, 'local.properties');
+    const localPropertiesContent = `sdk.dir=${sdkPath.replace(/\\/g, '/')}`;
+    fs.writeFileSync(localPropertiesPath, localPropertiesContent);
+}
+
+try {
     const sdkPath = findAndroidSdk();
-    if (!sdkPath) {
-        console.error('\x1b[31mError: Android SDK not found!\x1b[0m');
-        console.log('\nPlease install Android Studio and SDK from:');
-        console.log('https://developer.android.com/studio');
-        process.exit(1);
-    }
-
-    const localPropertiesPath = path.join(__dirname, '../android/local.properties');
-    const content = `sdk.dir=${sdkPath.replace(/\\/g, '/')}`;
-
-    fs.writeFileSync(localPropertiesPath, content);
-    console.log('\x1b[32mSuccessfully configured Android SDK path!\x1b[0m');
-}
-
-setupAndroidSdk(); 
+    process.env.ANDROID_HOME = sdkPath;
+    
+    // Set up local.properties
+    setupLocalProperties(sdkPath);
+    
+    console.log('✅ Android SDK found at:', sdkPath);
+    console.log('✅ Created local.properties file');
+} catch (error) {
+    console.error('Error:', error.message);
+    process.exit(1);
+} 
