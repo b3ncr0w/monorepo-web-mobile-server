@@ -110,6 +110,13 @@ The development server supports runtime commands:
 - `yarn dev:ios` - Start iOS simulator with server (Mac only)
 - `yarn dev:android` - Start Android emulator with server
 
+### Individual Services
+- `yarn web:dev` - Start web app only
+- `yarn server:dev` - Start server only
+- `yarn mobile:dev` - Start Expo development only
+- `yarn mobile:ios` - Start iOS simulator only
+- `yarn mobile:android` - Start Android emulator only
+
 ### Building
 - `yarn build:web` - Build web application
 - `yarn build:server` - Build server
