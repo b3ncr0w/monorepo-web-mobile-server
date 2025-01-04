@@ -5,7 +5,7 @@ const CLEAN = [
     'node_modules', 'dist', '.expo', 'web-build', 'android', 'ios',
     'coverage', 'expo-env.d.ts', '*.tsbuildinfo', '*.log', '.DS_Store'
 ];
-const KEEP = ['.git', '.github', '.vscode', '.gitignore', '.env'];
+const KEEP = ['.git', '.github', '.vscode', '.gitignore', '.env', 'assets'];
 
 function clean(dir) {
     if (!fs.existsSync(dir)) return;
