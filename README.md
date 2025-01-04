@@ -45,7 +45,7 @@ The development environment and build scripts are specifically configured to pro
 ## 🛠️ Requirements
 
 - Node.js >= 18.x (LTS)
-- Yarn (npm is not supported)
+- Yarn
 - Expo CLI (`yarn global add expo-cli`)
 - For mobile development:
   - iOS: XCode and iOS Simulator
