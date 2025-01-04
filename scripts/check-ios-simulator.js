@@ -55,7 +55,47 @@ function installSimulatorRuntime() {
     }
 }
 
-function checkIosSimulator() {
+function getAvailableDeviceTypes() {
+    try {
+        const devices = JSON.parse(execSync('xcrun simctl list devicetypes -j').toString());
+        return devices.devicetypes
+            .filter(device => device.name.includes('iPhone') || device.name.includes('iPad'))
+            .map(device => ({
+                name: device.name,
+                identifier: device.identifier
+            }));
+    } catch {
+        return [];
+    }
+}
+
+function promptDeviceSelection(deviceTypes) {
+    console.log('\nAvailable device types:');
+    deviceTypes.forEach((device, index) => {
+        console.log(`${index + 1}. ${device.name}`);
+    });
+    
+    // Using readline for synchronous input
+    const readline = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        readline.question('\nSelect a device type (enter number): ', (answer) => {
+            readline.close();
+            const index = parseInt(answer) - 1;
+            if (index >= 0 && index < deviceTypes.length) {
+                resolve(deviceTypes[index]);
+            } else {
+                console.log('Invalid selection, using iPhone 15 as default');
+                resolve(deviceTypes.find(d => d.name.includes('iPhone 15')) || deviceTypes[0]);
+            }
+        });
+    });
+}
+
+async function checkIosSimulator() {
     try {
         // First check Xcode
         if (!checkXcode()) {
@@ -72,24 +112,50 @@ function checkIosSimulator() {
             execSync('until xcrun --version &>/dev/null; do sleep 5; done');
         }
 
-        // Check available simulators
-        const simulators = JSON.parse(execSync('xcrun simctl list devices available -j').toString());
-        const runtime = Object.keys(simulators.devices).find(key => key.includes('iOS'));
-        const device = simulators.devices[runtime]?.[0];
+        // Get available device types and prompt for selection
+        const deviceTypes = getAvailableDeviceTypes();
+        if (deviceTypes.length === 0) {
+            throw new Error('No device types available');
+        }
 
-        if (!device) {
-            console.log('📱 No iOS simulator found');
-            
-            // Get or install runtime
-            const latestRuntime = getAvailableRuntimes()[0] || installSimulatorRuntime();
+        const selectedDevice = await promptDeviceSelection(deviceTypes);
+        
+        // Get or install runtime if needed
+        let latestRuntime = getAvailableRuntimes()[0];
+        if (!latestRuntime) {
+            latestRuntime = installSimulatorRuntime();
             if (!latestRuntime) {
                 throw new Error('Could not install iOS runtime');
             }
-
-            // Create simulator with available runtime
-            console.log('📱 Creating iOS simulator...');
-            execSync(`xcrun simctl create "iPhone 15" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "com.apple.CoreSimulator.SimRuntime.iOS-${latestRuntime.replace('.', '-')}"`, { stdio: 'inherit' });
         }
+
+        // Delete existing simulator with the same name if it exists
+        try {
+            const existingDevices = JSON.parse(execSync('xcrun simctl list devices -j').toString());
+            const existingDevice = Object.values(existingDevices.devices)
+                .flat()
+                .find(device => device.name === selectedDevice.name);
+            
+            if (existingDevice) {
+                execSync(`xcrun simctl delete "${existingDevice.udid}"`);
+            }
+        } catch (error) {
+            console.log('Warning: Could not check for existing devices', error.message);
+        }
+
+        // Create simulator with selected device type
+        console.log(`📱 Creating iOS simulator for ${selectedDevice.name}...`);
+        const creationOutput = execSync(
+            `xcrun simctl create "${selectedDevice.name}" "${selectedDevice.identifier}" "com.apple.CoreSimulator.SimRuntime.iOS-${latestRuntime.replace('.', '-')}"`,
+            { encoding: 'utf8' }
+        ).trim();
+
+        // Boot the simulator
+        console.log('🚀 Booting simulator...');
+        execSync(`xcrun simctl boot "${creationOutput}"`, { stdio: 'inherit' });
+        
+        // Open Simulator.app
+        execSync('open -a Simulator', { stdio: 'inherit' });
 
         console.log('✅ iOS simulator is ready');
         return true;
@@ -108,7 +174,10 @@ function checkIosSimulator() {
 }
 
 if (require.main === module) {
-    checkIosSimulator();
+    checkIosSimulator().catch(error => {
+        console.error('❌ Error:', error);
+        process.exit(1);
+    });
 }
 
 module.exports = checkIosSimulator; 
