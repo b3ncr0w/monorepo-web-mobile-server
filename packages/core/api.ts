@@ -1,11 +1,13 @@
+import apiConfig from '../../config/api.config.json';
+
 interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
 
 const API_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://192.168.0.185:3000'
-  : 'http://192.168.0.185:3000';
+  ? apiConfig.apiDevEndpoint
+  : apiConfig.apiEndpoint;
 
 export async function fetchApi<T>(
   endpoint: string, 

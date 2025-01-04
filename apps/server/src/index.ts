@@ -5,6 +5,35 @@ import type { RequestHandler } from 'express';
 import express from 'express';
 import { networkInterfaces } from 'os';
 import readline from 'readline';
+import fs from 'fs';
+import path from 'path';
+
+const CONFIG_PATH = path.join(__dirname, '../../../config/api.config.json');
+
+// Function to update API configuration
+function updateApiConfig(networkAddress: string) {
+  try {
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+    let configUpdated = false;
+
+    if (config.autoSetApiDevEndpoint) {
+      config.apiDevEndpoint = `http://${networkAddress}:${PORT}`;
+      configUpdated = true;
+    }
+
+    if (config.autoSetApiEndpoint) {
+      config.apiEndpoint = `http://${networkAddress}:${PORT}`;
+      configUpdated = true;
+    }
+
+    if (configUpdated) {
+      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+      log('📝 Updated API configuration with network address');
+    }
+  } catch (error) {
+    console.error('Failed to update API configuration:', error);
+  }
+}
 
 const app = express();
 const PORT = 3000;
@@ -199,12 +228,17 @@ async function startServer() {
   try {
     const server = app.listen(PORT, () => {
       const nets = networkInterfaces();
+      const networkAddress = Object.values(nets)
+        .flat()
+        .find(addr => addr?.family === 'IPv4' && !addr.internal)
+        ?.address || 'localhost';
+
+      // Update API configuration with network address
+      updateApiConfig(networkAddress);
+
       const addresses = [
         { name: 'Local', url: 'localhost' },
-        { name: 'Network', url: Object.values(nets)
-          .flat()
-          .find(addr => addr?.family === 'IPv4' && !addr.internal)
-          ?.address || 'unknown' }
+        { name: 'Network', url: networkAddress }
       ];
 
       log('\n🚀 Server started successfully');
