@@ -9,20 +9,25 @@ function findAndroidSdk() {
 
     // Common Android SDK locations
     const possiblePaths = [
-        '/opt/homebrew/share/android-commandlinetools',  // Homebrew Android SDK location
+        process.env.ANDROID_HOME,
+        process.env.ANDROID_SDK_ROOT,
         path.join(homeDir, 'Library/Android/sdk'),      // macOS default
+        '/opt/homebrew/share/android-commandlinetools',  // Homebrew Android SDK location
         path.join(homeDir, 'AppData/Local/Android/Sdk'), // Windows
         path.join(homeDir, 'Android/Sdk'),              // Linux
-    ];
+    ].filter(Boolean);
 
-    // Check ANDROID_HOME env variable first
-    if (process.env.ANDROID_HOME && fs.existsSync(process.env.ANDROID_HOME)) {
-        return process.env.ANDROID_HOME;
-    }
-
-    // Check common locations
+    // Check all possible locations
     for (const sdkPath of possiblePaths) {
-        if (fs.existsSync(sdkPath)) {
+        if (sdkPath && fs.existsSync(sdkPath)) {
+            // For Homebrew installation, we need to use the Android SDK from Android Studio
+            if (sdkPath === '/opt/homebrew/share/android-commandlinetools') {
+                // Check if Android Studio SDK exists
+                const studioSdkPath = path.join(homeDir, 'Library/Android/sdk');
+                if (fs.existsSync(studioSdkPath)) {
+                    return studioSdkPath; // Use Android Studio SDK instead
+                }
+            }
             return sdkPath;
         }
     }
@@ -32,9 +37,12 @@ function findAndroidSdk() {
         console.log('📱 Android SDK not found. Installing...');
         try {
             execSync('brew install android-commandlinetools', { stdio: 'inherit' });
-            if (fs.existsSync('/opt/homebrew/share/android-commandlinetools')) {
-                return '/opt/homebrew/share/android-commandlinetools';
-            }
+            console.log('\n⚠️  Please also install Android Studio to get the full SDK:');
+            console.log('1. Download from: https://developer.android.com/studio');
+            console.log('2. Open Android Studio and complete the setup');
+            console.log('3. Go to Tools > SDK Manager');
+            console.log('4. Install the SDK platforms and tools you need');
+            process.exit(1);
         } catch (error) {
             console.error('❌ Failed to install Android SDK:', error.message);
         }
