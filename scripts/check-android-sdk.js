@@ -49,23 +49,8 @@ function main() {
     process.env.ANDROID_HOME = sdkPath;
     process.env.ANDROID_SDK_ROOT = sdkPath;
 
-    // Create or update local.properties
-    const mobileAndroidPath = path.join(process.cwd(), 'apps/mobile/android');
-    const localPropertiesPath = path.join(mobileAndroidPath, 'local.properties');
-    
-    const localPropertiesContent = `sdk.dir=${sdkPath.replace(/\\/g, '/')}`;
-    
-    try {
-        if (!fs.existsSync(mobileAndroidPath)) {
-            fs.mkdirSync(mobileAndroidPath, { recursive: true });
-        }
-        fs.writeFileSync(localPropertiesPath, localPropertiesContent);
-        console.log('✅ Android SDK configuration successful!');
-        console.log('📍 SDK Location:', sdkPath);
-    } catch (error) {
-        console.error('❌ Error writing local.properties file:', error);
-        process.exit(1);
-    }
+    console.log('✅ Android SDK configuration successful!');
+    console.log('📍 SDK Location:', sdkPath);
 }
 
 // Only run main if this file is being run directly
