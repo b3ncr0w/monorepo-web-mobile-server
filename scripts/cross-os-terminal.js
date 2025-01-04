@@ -7,7 +7,11 @@ const platform = os.platform();
 
 function crossSpawn(command) {
     if (platform === 'win32') {
-        spawn('cmd', ['/c', 'start', 'cmd', '/k', `cd "${projectRoot}" && ${command}`], { shell: true });
+        const psCommand = `Start-Process powershell -ArgumentList '-NoExit', '-Command', 'Set-Location \\"${projectRoot}\\"; ${command}'`;
+        spawn('powershell.exe', ['-Command', psCommand], {
+            shell: true,
+            windowsVerbatimArguments: true
+        });
     } else if (platform === 'darwin') {
         spawn('osascript', ['-e', `
             tell application "Terminal"
