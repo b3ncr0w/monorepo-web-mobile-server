@@ -19,7 +19,7 @@
     "dev:web": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn web:dev\"",
     "dev:mobile": "node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:dev\"",
     "dev:ios": "node scripts/check-ios-simulator.js && node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:ios\"",
-    "dev:android": "node scripts/check-android-sdk.js && node scripts/check-android-emulator.js && node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:android\"",
+    "dev:android": "node scripts/check-android-sdk.js && node scripts/check-android-emulator.js && yarn workspace mobile prebuild && node scripts/cross-os-terminal.js \"yarn server:dev\" \"yarn mobile:android\"",
 
     "build:web": "yarn workspace web build",
     "build:server": "yarn workspace server build",

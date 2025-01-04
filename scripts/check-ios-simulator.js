@@ -1,3 +1,10 @@
+const os = require('os');
+
+if (os.platform() !== 'darwin') {
+    console.error('\n❌ iOS development is only supported on macOS');
+    process.exit(1);
+}
+
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');

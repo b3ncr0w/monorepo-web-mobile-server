@@ -1,11 +1,9 @@
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
 function findAndroidSdk() {
     const homeDir = os.homedir();
-    const platform = os.platform();
 
     // Common Android SDK locations
     const possiblePaths = [
@@ -30,37 +28,36 @@ function findAndroidSdk() {
     }
 
     // If not found, guide user to install Android Studio
-    console.error('❌ Android Studio and SDK not found!');
+    console.error('\n❌ Android Studio and SDK not found!');
     console.log('\n📱 Please complete these steps:');
     console.log('1. Download Android Studio from: https://developer.android.com/studio');
     console.log('2. Install Android Studio and launch it');
-    console.log('3. Install Android SDK');
+    console.log('3. Complete the Android SDK installation');
     console.log('4. Run this command again\n');
     process.exit(1);
 }
 
 function setupLocalProperties(sdkPath) {
-    const androidDir = path.join(__dirname, '../apps/mobile/android');
-    
-    if (!fs.existsSync(androidDir)) {
-        console.error('❌ Android directory not found at:', androidDir);
-        process.exit(1);
-    }
-
+    const androidDir = path.join(__dirname, '..', 'apps', 'mobile', 'android');
     const localPropertiesPath = path.join(androidDir, 'local.properties');
-    const localPropertiesContent = `sdk.dir=${sdkPath.replace(/\\/g, '/')}`;
-    fs.writeFileSync(localPropertiesPath, localPropertiesContent);
+
+    // Only create local.properties if Android directory exists
+    if (fs.existsSync(androidDir)) {
+        // Create or update local.properties
+        const localPropertiesContent = `sdk.dir=${sdkPath.replace(/\\/g, '/')}`;
+        fs.writeFileSync(localPropertiesPath, localPropertiesContent);
+        console.log('✅ Created local.properties file');
+    }
 }
 
 function setupAndroidSdk() {
     try {
         const sdkPath = findAndroidSdk();
         process.env.ANDROID_HOME = sdkPath;
+        process.env.ANDROID_SDK_ROOT = sdkPath; // Add this line for better compatibility
+        console.log('✅ Android SDK found at:', sdkPath);
         
         setupLocalProperties(sdkPath);
-
-        console.log('✅ Android SDK found at:', sdkPath);
-        console.log('✅ Created local.properties file');
         return true;
     } catch (error) {
         console.error('Error:', error.message);
@@ -76,6 +73,5 @@ if (require.main === module) {
 
 module.exports = {
     findAndroidSdk,
-    setupAndroidSdk,
-    setupLocalProperties
+    setupAndroidSdk
 }; 
