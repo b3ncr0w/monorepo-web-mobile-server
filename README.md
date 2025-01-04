@@ -2,6 +2,14 @@
 
 A modern Yarn Workspaces monorepo with server, web, mobile, and shared packages.
 
+## Platform Support
+
+This project is optimized for development on:
+- macOS
+- Windows
+
+The development environment and build scripts are specifically configured to provide the best experience on these platforms.
+
 ## 📁 Structure
 
 ```
@@ -117,4 +125,4 @@ The development server supports runtime commands:
 
 ## 📝 License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
