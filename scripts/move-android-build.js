@@ -3,7 +3,7 @@ const path = require('path');
 
 function moveAndroidBuild() {
   const sourceDir = path.join(__dirname, '../apps/mobile/android/app/build/outputs/apk/release');
-  const targetDir = path.join(__dirname, '../dist/android');
+  const targetDir = path.join(__dirname, '../dist');
 
   // Create dist/android directory if it doesn't exist
   if (!fs.existsSync(targetDir)) {
